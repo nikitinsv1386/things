@@ -46,5 +46,10 @@ QRcode::png($qrUrl, $qrPath, QR_ECLEVEL_L, 4);
 $stmt = $pdo->prepare('UPDATE items SET qr_code=? WHERE id=?');
 $stmt->execute([$qrPath, $itemId]);
 
+if (isset($_POST['ajax'])) {
+    echo json_encode(['success' => true, 'id' => $itemId, 'qr' => $qrPath]);
+    exit;
+}
+
 header('Location: view.php?id=' . $itemId);
 exit;

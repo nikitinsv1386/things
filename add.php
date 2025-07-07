@@ -1,8 +1,11 @@
 <?php
-require_once 'includes/header.php';
+$modal = isset($_GET['modal']);
+if (!$modal) {
+    require_once 'includes/header.php';
+}
 ?>
 <h2>Добавить вещь</h2>
-<form class="needs-validation" novalidate method="post" action="save.php" enctype="multipart/form-data">
+<form class="needs-validation ajax-form" novalidate method="post" action="save.php" enctype="multipart/form-data">
   <div class="mb-3">
     <label for="name" class="form-label">Название</label>
     <input type="text" class="form-control" id="name" name="name" required>
@@ -26,5 +29,7 @@ require_once 'includes/header.php';
   <button type="submit" class="btn btn-primary">Сохранить</button>
 </form>
 <?php
-require_once 'includes/footer.php';
+if (!$modal) {
+    require_once 'includes/footer.php';
+}
 ?>

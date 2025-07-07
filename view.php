@@ -27,8 +27,8 @@ if (!$item) {
     <?php if ($item['qr_code']): ?>
     <p><img src="<?= htmlspecialchars($item['qr_code']) ?>" alt="QR"></p>
     <?php endif; ?>
-    <a href="edit.php?id=<?= $item['id'] ?>" class="btn btn-primary">Редактировать</a>
-    <a href="delete.php?id=<?= $item['id'] ?>" class="btn btn-danger" onclick="return confirm('Удалить вещь?');">Удалить</a>
+    <a href="edit.php?id=<?= $item['id'] ?>" class="btn btn-primary" data-modal>Редактировать</a>
+    <a href="delete.php?id=<?= $item['id'] ?>" class="btn btn-danger delete-link">Удалить</a>
   </div>
 </div>
 <?php

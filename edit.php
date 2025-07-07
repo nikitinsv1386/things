@@ -1,6 +1,9 @@
 <?php
+$modal = isset($_GET['modal']);
 require_once 'includes/db.php';
-require_once 'includes/header.php';
+if (!$modal) {
+    require_once 'includes/header.php';
+}
 
 $id = (int)($_GET['id'] ?? 0);
 $stmt = $pdo->prepare('SELECT * FROM items WHERE id = ?');
@@ -8,12 +11,14 @@ $stmt->execute([$id]);
 $item = $stmt->fetch();
 if (!$item) {
     echo '<p>Вещь не найдена</p>';
-    require 'includes/footer.php';
+    if (!$modal) {
+        require 'includes/footer.php';
+    }
     exit;
 }
 ?>
 <h2>Редактировать вещь</h2>
-<form class="needs-validation" novalidate method="post" action="save.php?id=<?= $item['id'] ?>" enctype="multipart/form-data">
+<form class="needs-validation ajax-form" novalidate method="post" action="save.php?id=<?= $item['id'] ?>" enctype="multipart/form-data">
   <div class="mb-3">
     <label for="name" class="form-label">Название</label>
     <input type="text" class="form-control" id="name" name="name" value="<?= htmlspecialchars($item['name']) ?>" required>
@@ -34,8 +39,11 @@ if (!$item) {
     <label for="image" class="form-label">Фото</label>
     <input class="form-control" type="file" id="image" name="image">
   </div>
+  <input type="hidden" name="existing_image" value="<?= htmlspecialchars($item['image_path']) ?>">
   <button type="submit" class="btn btn-primary">Сохранить</button>
 </form>
 <?php
-require_once 'includes/footer.php';
+if (!$modal) {
+    require_once 'includes/footer.php';
+}
 ?>

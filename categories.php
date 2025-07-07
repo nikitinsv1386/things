@@ -14,6 +14,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare('INSERT INTO categories (name, location) VALUES (?, ?)');
         $stmt->execute([$name, $location]);
     }
+    if (isset($_POST['ajax'])) {
+        echo json_encode(['success' => true]);
+        exit;
+    }
     header('Location: categories.php');
     exit;
 }
@@ -22,6 +26,10 @@ if (isset($_GET['delete'])) {
     $id = (int)$_GET['delete'];
     $stmt = $pdo->prepare('DELETE FROM categories WHERE id=?');
     $stmt->execute([$id]);
+    if (isset($_GET['ajax'])) {
+        echo json_encode(['success' => true]);
+        exit;
+    }
     header('Location: categories.php');
     exit;
 }
@@ -37,7 +45,7 @@ if (isset($_GET['edit'])) {
 $categories = $pdo->query('SELECT * FROM categories ORDER BY name')->fetchAll();
 ?>
 <h2>Категории</h2>
-<form method="post" class="mb-4">
+<form method="post" class="mb-4 ajax-form" action="categories.php">
     <input type="hidden" name="id" value="<?= $editCategory['id'] ?? '' ?>">
     <div class="row g-2 align-items-end">
         <div class="col-md-4">
@@ -57,14 +65,14 @@ $categories = $pdo->query('SELECT * FROM categories ORDER BY name')->fetchAll();
   <thead>
     <tr><th>Название</th><th>Локация</th><th></th></tr>
   </thead>
-  <tbody>
+  <tbody id="catBody">
   <?php foreach ($categories as $cat): ?>
-    <tr>
+    <tr data-id="<?= $cat['id'] ?>" data-name="<?= htmlspecialchars($cat['name']) ?>" data-location="<?= htmlspecialchars($cat['location']) ?>">
       <td><?= htmlspecialchars($cat['name']) ?></td>
       <td><?= htmlspecialchars($cat['location']) ?></td>
       <td>
-        <a href="categories.php?edit=<?= $cat['id'] ?>" class="btn btn-sm btn-secondary">Ред.</a>
-        <a href="categories.php?delete=<?= $cat['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Удалить?');">Удалить</a>
+        <button type="button" class="btn btn-sm btn-secondary edit-category">Ред.</button>
+        <a href="categories.php?delete=<?= $cat['id'] ?>" class="btn btn-sm btn-danger delete-link">Удалить</a>
       </td>
     </tr>
   <?php endforeach; ?>
