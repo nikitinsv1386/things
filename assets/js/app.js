@@ -1,9 +1,8 @@
 // Form validation and AJAX helpers
-(function(){
-  // validation
+(function () {
   const forms = document.querySelectorAll('.needs-validation');
-  Array.prototype.slice.call(forms).forEach(function(form){
-    form.addEventListener('submit', function(event){
+  Array.prototype.slice.call(forms).forEach(function (form) {
+    form.addEventListener('submit', function (event) {
       if (!form.checkValidity()) {
         event.preventDefault();
         event.stopPropagation();
@@ -23,31 +22,83 @@
       });
   }
 
-  document.addEventListener('click', function(e){
-    if (e.target.dataset.modal !== undefined) {
+  function resetUsersForm() {
+    const form = document.getElementById('usersForm');
+    if (!form) return;
+
+    form.reset();
+    form.querySelector('#user_id').value = '';
+    form.querySelector('#user_role').value = 'Пользователь';
+    form.querySelector('#user_submit').textContent = 'Сохранить';
+    form.querySelector('#user_cancel').hidden = true;
+  }
+
+  document.addEventListener('click', function (e) {
+    const modalTrigger = e.target.closest('[data-modal]');
+    if (modalTrigger) {
       e.preventDefault();
-      openModal(e.target.href);
+      openModal(modalTrigger.href);
       return;
     }
-    if (e.target.classList.contains('delete-link')) {
+
+    const deleteLink = e.target.closest('.delete-link');
+    if (deleteLink) {
       e.preventDefault();
       if (!confirm('Удалить?')) return;
-      fetch(e.target.href + '&ajax=1')
+      fetch(deleteLink.href + '&ajax=1')
         .then(r => r.json())
         .then(() => {
-          const row = e.target.closest('tr') || e.target.closest('.col-md-4');
+          const row = deleteLink.closest('tr') || deleteLink.closest('.col-md-4');
           if (row) row.remove();
         });
+      return;
     }
-    if (e.target.classList.contains('edit-category')) {
-      const tr = e.target.closest('tr');
+
+    const editCategoryBtn = e.target.closest('.edit-category');
+    if (editCategoryBtn) {
+      const tr = editCategoryBtn.closest('tr');
       document.querySelector('input[name=id]').value = tr.dataset.id;
       document.querySelector('input[name=name]').value = tr.dataset.name;
       document.querySelector('input[name=location]').value = tr.dataset.location;
+      return;
+    }
+
+    const editUserBtn = e.target.closest('.edit-user');
+    if (editUserBtn) {
+      const form = document.getElementById('usersForm');
+      if (!form) return;
+
+      form.querySelector('#user_id').value = editUserBtn.dataset.id;
+      form.querySelector('#user_name').value = editUserBtn.dataset.name;
+      form.querySelector('#user_email').value = editUserBtn.dataset.email;
+      form.querySelector('#user_role').value = editUserBtn.dataset.role;
+      form.querySelector('#user_submit').textContent = 'Обновить';
+      form.querySelector('#user_cancel').hidden = false;
+      return;
+    }
+
+    const deleteUserLink = e.target.closest('.delete-user');
+    if (deleteUserLink) {
+      e.preventDefault();
+      if (!confirm('Удалить пользователя?')) return;
+
+      fetch(deleteUserLink.href + '&ajax=1')
+        .then(r => r.json())
+        .then(resp => {
+          if (!resp.success) return;
+          const row = deleteUserLink.closest('tr');
+          if (row) row.remove();
+          resetUsersForm();
+        });
+      return;
+    }
+
+    if (e.target.id === 'user_cancel') {
+      resetUsersForm();
     }
   });
 
-  document.addEventListener('submit', function(e){
+  document.addEventListener('submit', function (e) {
     if (e.target.classList.contains('ajax-form')) {
       e.preventDefault();
       const form = e.target;
@@ -66,6 +117,32 @@
                 if (list) list.insertAdjacentHTML('afterbegin', html);
               });
           }
+        });
+      return;
+    }
+
+    if (e.target.classList.contains('users-form')) {
+      e.preventDefault();
+      const form = e.target;
+      const data = new FormData(form);
+      data.append('ajax', '1');
+
+      fetch(form.action, { method: 'POST', body: data })
+        .then(r => r.json())
+        .then(resp => {
+          if (!resp.success) {
+            alert(resp.message || 'Не удалось сохранить пользователя');
+            return;
+          }
+
+          const tableBody = document.getElementById('usersBody');
+          const existingRow = tableBody.querySelector(`tr[data-id="${resp.id}"]`);
+          if (existingRow) {
+            existingRow.outerHTML = resp.rowHtml;
+          } else {
+            tableBody.insertAdjacentHTML('afterbegin', resp.rowHtml);
+          }
+          resetUsersForm();
         });
     }
   });

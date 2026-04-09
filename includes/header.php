@@ -14,6 +14,12 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
   <div class="container">
     <a class="navbar-brand" href="/index.php">Каталог вещей</a>
+    <div class="navbar-nav ms-auto">
+      <a class="nav-link" href="/index.php">Вещи</a>
+      <a class="nav-link" href="/categories.php">Категории</a>
+      <a class="nav-link" href="/users.php">Пользователи</a>
+      <a class="nav-link" href="/qr_scan.php">QR-сканер</a>
+    </div>
   </div>
 </nav>
 <div class="container">
